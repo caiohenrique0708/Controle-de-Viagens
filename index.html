@@ -1153,11 +1153,14 @@ function renderDashboard() {
   const to = document.getElementById('dashDataFim').value;
 
   const filtered = trips.filter(t => (!motorista || t.motorista === motorista) && inRange(t.dataSaida, from, to));
+  // Situações "em aberto" (Agendada/Em andamento) refletem o estado atual da operação,
+  // não devem sumir só porque a data da viagem está fora do período filtrado.
+  const emAberto = trips.filter(t => !motorista || t.motorista === motorista);
 
   const total = filtered.length;
   const concluidas = filtered.filter(t => t.status === 'Concluída').length;
-  const andamento = filtered.filter(t => t.status === 'Em andamento').length;
-  const agendadas = filtered.filter(t => t.status === 'Agendada').length;
+  const andamento = emAberto.filter(t => t.status === 'Em andamento').length;
+  const agendadas = emAberto.filter(t => t.status === 'Agendada').length;
   const kmTotal = filtered.reduce((s, t) => s + (Number(t.kmPercorrido) || 0), 0);
 
   document.getElementById('kpiTotalViagens').textContent = total;
